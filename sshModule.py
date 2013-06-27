@@ -1,49 +1,37 @@
 #! /usr/bin/python
 import os
 import paramiko
-import MySQLdb
 import optparse
 import re
 import subprocess
 
 class sshclient():
-	def __init__(self):
-        	self.connections = []
-        	self.fail = True
-        
-	def connect(self, runway, host, user, passwd, prt):
-        	client = paramiko.SSHClient()
-        	client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        	try:
-            		client.connect("%s" % (host), username="%s" % (user), password="%s" % (passwd), port=prt, timeout=120)
-            		self.connections.append(client)
-        	except:
-            		print ("can't connect to %s %s" % (host, runway))
-            		return 0         
+	def __init__(self, username, host, password, port=22122):
+        	self.connection = paramiko.SSHClient()
+		self.connection.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+		self.connection.connect("%s" % (host), username="%s" % (username), password="%s" % (password), port=port, timeout=120)
 
 	def command(self, cmd):
-        	for conn in self.connections:
-            		stdin,stdout,stderr = conn.exec_command("""%s""" % (cmd),timeout=900)
-            		err = stderr.readlines()
-            		data = stdout.readlines()
-            		return data
+# Version on AM02 has a time out included
+#            	stdin,stdout,stderr = self.client.exec_command("""%s""" % (cmd),timeout=900)
+            	stdin,stdout,stderr = self.connection.exec_command("""%s""" % (cmd))
+            	err = stderr.readlines()
+            	data = stdout.readlines()
+            	return data
 	
 	def scp(self,src,dst):
-		for conn in self.connections:
-			scp = conn.open_sftp()
- 			print ("copying %s" % src)
-			try:
-				scp.put(src,dst)
-				scp.close()
-			except:
-				print("The file could not be copied. Check your source and destination locations are correct")	
-				scp.close()
-				return 0
+		scp = self.connection.open_sftp()
+ 		print ("copying %s" % src)
+		try:
+			scp.put(src,dst)
+			scp.close()
+		except:
+			print("The file could not be copied. Check your source and destination locations are correct")	
+			scp.close()
+			return 0
 
 	def close(self):
-        	for conn in self.connections:
-           		conn.close()
-	    		self.connections.pop()
+           	self.connection.close()
 
 def getBranches():
 	"""
