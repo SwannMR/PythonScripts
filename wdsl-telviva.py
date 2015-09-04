@@ -51,7 +51,7 @@ def soapRequest(method):
     return request
 
 
-request = str.encode(soapRequest("get_queue_destinations"))
+request = str.encode(soapRequest("get_queues"))
 
 conn = http.client.HTTPConnection("197.155.250.189",80)
 conn.putrequest("POST", "/api/soap/")
@@ -73,11 +73,28 @@ queues = convertResponse(data)
 for q in queues:
     print (q['id'],q['name'])
 
-"""
-{Integrics/Enswitch/API}play_position 0
-{Integrics/Enswitch/API}ringtime 15
-{Integrics/Enswitch/API}id 138
-{Integrics/Enswitch/API}search_interval 60
-{Integrics/Enswitch/API}music 0
-{Integrics/Enswitch/API}allow_forwards 0
-"""
+
+class Telviva(object):
+    """Python SOAP API wrapper for Telviva"""
+
+    def __init__(self, url, username=None, password=None, headers=None):
+
+        """
+        Instantiates an instance to Telviva. Takes basic parameters
+        for authentication
+        """
+    
+        self.data = None
+
+        # Set Attributes for SOAP constuction
+        self.url = url
+        self.username = username
+        self.password = password
+
+        # Set Headers
+        if self.headers is None:
+            self.headers = {
+                'User-Agent' : 'Telviva Python Library',
+                'Accetp' : 'text/xml',
+                'Content-length' : ''
+            }
