@@ -73,6 +73,16 @@ class Telviva(object):
         data = xmlToDictionary(response)
         return data
 
+    def get_phone(self, phone):
+        client = http.client.HTTPConnection(self.host)
+        body = self.request.replace('<<method>>','get_phone')
+        enswitch_headers = '<enswitch:phone>%s</enswitch:phone>' % (phone)
+        body = body.replace('<<enswitch_headers>>',enswitch_headers)
+        client.request('POST', self.url, body, headers=self.headers)
+        response = client.getresponse()
+        data = xmlToDictionary(response)
+        return data
+
     def get_numbers(self):
         """
         Return a list of numbers and feature codes
@@ -206,7 +216,7 @@ class Telviva(object):
 
     def delete_queue_destination(self, queue_destination_id):
         client = http.client.HTTPConnection(self.host)
-        body = self.request.replace('<<method>>','get_queue_destination')
+        body = self.request.replace('<<method>>','delete_queue_destination')
         enswitch_headers = '<enswitch:id>%s</enswitch:id>' % (queue_destination_id)
         body = body.replace('<<enswitch_headers>>', enswitch_headers)
         client.request('POST', self.url, body, headers=self.headers)
